@@ -21,8 +21,14 @@ const propertySchema = new mongoose.Schema(
       trim: true,
     },
     location: {
-      type: String,
-      required: [true, "A property must have a location"],
+      type: {
+        type: String,
+        default: "Point",
+        enum: ["Point"],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
     },
     pricePerNight: {
       type: Number,
@@ -67,6 +73,10 @@ const propertySchema = new mongoose.Schema(
       default: Date.now(),
       select: false,
     },
+    owner: {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -74,8 +84,18 @@ const propertySchema = new mongoose.Schema(
   }
 );
 
+propertySchema.index({ location: "2dsphere" });
+
 propertySchema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+propertySchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "owner",
+    select: "-__v -passwordChangeAt -role",
+  });
   next();
 });
 

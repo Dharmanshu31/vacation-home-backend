@@ -7,7 +7,7 @@ class SerchFilter {
     const queryCopy = { ...this.queryObj };
     const restrictedField = ["page", "sort", "limit", "fields"];
     restrictedField.forEach((el) => delete queryCopy[el]);
-    const queryStr = JSON.stringify(queryCopy);
+    let queryStr = JSON.stringify(queryCopy);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
     this.query = this.query.find(JSON.parse(queryStr));
     return this;

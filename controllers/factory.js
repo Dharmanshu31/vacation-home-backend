@@ -10,9 +10,10 @@ exports.CreateOne = (Model) =>
       data: doc,
     });
   });
-exports.GetOne = (Model) =>
+exports.GetOne = (Model, popOption) =>
   AsyncHandler(async (req, res, next) => {
-    const doc = await Model.findById(req.params.id);
+    let query = Model.findById(req.params.id);
+    const doc = await query;
     if (!doc) {
       return next(
         new CustomeError(
@@ -69,6 +70,12 @@ exports.GetAll = (Model) =>
       .limitFileds()
       .page();
     const doc = await filter.query;
+    if (!doc.length) {
+      return res.status(200).json({
+        status: "Success",
+        message: "Data is Not available at This time",
+      });
+    }
     res.status(200).json({
       status: "Success",
       result: doc.length,

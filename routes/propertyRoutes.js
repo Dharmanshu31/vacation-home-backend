@@ -9,6 +9,7 @@ router
   .post(
     authController.protect,
     authController.roleBaseAuth("admin", "landlord"),
+    propertyController.addOwner,
     propertyController.createProperty
   );
 
@@ -25,5 +26,9 @@ router
     authController.roleBaseAuth("admin", "landlord"),
     propertyController.deleteProperty
   );
+
+router
+  .route("/property-near/distance/:latlag/unit/:unit")
+  .get(propertyController.nearByMe);
 
 module.exports = router;
