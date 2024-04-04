@@ -38,7 +38,9 @@ exports.resizeImages = AsyncHandler(async (req, res, next) => {
 });
 
 exports.getAllProperty = factory.GetAll(Property);
-exports.getProperty = factory.GetOne(Property);
+exports.getProperty = factory.GetOne(Property, {
+  path: "reviews",
+});
 
 exports.addOwner = (req, res, next) => {
   req.body.owner = req.user.id;

@@ -13,6 +13,9 @@ exports.CreateOne = (Model) =>
 exports.GetOne = (Model, popOption) =>
   AsyncHandler(async (req, res, next) => {
     let query = Model.findById(req.params.id);
+    if (popOption) {
+      query = query.populate(popOption);
+    }
     const doc = await query;
     if (!doc) {
       return next(

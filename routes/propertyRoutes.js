@@ -1,8 +1,12 @@
 const express = require("express");
 const propertyController = require("../controllers/propertyController");
 const authController = require("../controllers/authController");
+const reviewRouter = require("./reviewRoutes");
 
 const router = express.Router();
+
+router.use("/:propertyId/review", reviewRouter);
+
 router
   .route("/")
   .get(propertyController.getAllProperty)

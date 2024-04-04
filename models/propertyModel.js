@@ -99,6 +99,12 @@ propertySchema.pre(/^find/, function (next) {
   next();
 });
 
+propertySchema.virtual("reviews", {
+  ref: "Review",
+  foreignField: "property",
+  localField: "_id",
+});
+
 const Property = mongoose.model("Property", propertySchema);
 
 module.exports = Property;
