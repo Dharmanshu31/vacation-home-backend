@@ -1,6 +1,41 @@
 const Property = require("../models/propertyModel");
 const AsyncHandler = require("../utils/AsyncHandler");
+const CustomeError = require("../utils/CustomError");
 const factory = require("./factory");
+const multer = require("multer");
+const sharp = require("sharp");
+
+const multerStoreg = multer.memoryStorage();
+const filter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb(new CustomeError("Not An Image Plz Upload Image!!!!!", 400), false);
+  }
+};
+const uplode = multer({
+  storage: multerStoreg,
+  fileFilter: filter,
+});
+exports.uplodePropertyImage = uplode.fields([{ name: "images", maxCount: 5 }]);
+
+exports.resizeImages = AsyncHandler(async (req, res, next) => {
+  if (!req.files) return next();
+
+  req.body.images = [];
+  await Promise.all(
+    req.files.images.map(async (file, index) => {
+      const filename = `Peoperty-${req.body.name}-${Date.now()}-${index++}.jpeg`;
+      await sharp(file.buffer)
+        .resize(2000, 1333)
+        .toFormat("jpeg")
+        .jpeg({ quality: 90 })
+        .toFile(`public/property/${filename}`);
+      req.body.images.push(filename);
+    })
+  );
+  next();
+});
 
 exports.getAllProperty = factory.GetAll(Property);
 exports.getProperty = factory.GetOne(Property);

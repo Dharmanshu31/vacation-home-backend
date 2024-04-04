@@ -19,6 +19,8 @@ router
   .patch(
     authController.protect,
     authController.roleBaseAuth("admin", "landlord"),
+    propertyController.uplodePropertyImage,
+    propertyController.resizeImages,
     propertyController.updateProperty
   )
   .delete(
