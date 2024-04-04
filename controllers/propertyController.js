@@ -25,7 +25,7 @@ exports.resizeImages = AsyncHandler(async (req, res, next) => {
   req.body.images = [];
   await Promise.all(
     req.files.images.map(async (file, index) => {
-      const filename = `Peoperty-${req.body.name}-${Date.now()}-${index++}.jpeg`;
+      const filename = `Peoperty-${req.params.id}-${Date.now()}-${index++}.jpeg`;
       await sharp(file.buffer)
         .resize(2000, 1333)
         .toFormat("jpeg")
