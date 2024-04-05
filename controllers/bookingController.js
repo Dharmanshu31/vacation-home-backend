@@ -43,10 +43,12 @@ exports.getCheckoutSession = AsyncHandler(async (req, res, next) => {
       totalPrice: property.pricePerNight * duration,
       duration: req.params.duration,
     });
+    property.isBooked = true;
+    await property.save();
   }
   res.status(200).json({
     status: "Success",
-    session,
+    session: session.url,
   });
 });
 
