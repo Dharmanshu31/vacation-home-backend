@@ -73,7 +73,7 @@ exports.GetAll = (Model) =>
       .limitFileds()
       .page();
     const doc = await filter.query;
-    if (!doc.length) {
+    if (doc.length === 0) {
       return res.status(200).json({
         status: "Success",
         message: "Data is Not available at This time",
