@@ -28,6 +28,7 @@ exports.signUp = AsyncHandler(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
+    photo: req.body.photo,
   });
   createAndSendToken(newUser, 201, res);
 });

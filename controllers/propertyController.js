@@ -4,6 +4,7 @@ const CustomeError = require("../utils/CustomError");
 const factory = require("./factory");
 const multer = require("multer");
 const sharp = require("sharp");
+const axios = require("axios");
 
 const multerStoreg = multer.memoryStorage();
 const filter = (req, file, cb) => {
@@ -20,20 +21,20 @@ const uplode = multer({
 exports.uplodePropertyImage = uplode.fields([{ name: "images", maxCount: 5 }]);
 
 exports.resizeImages = AsyncHandler(async (req, res, next) => {
-  if (!req.files) return next();
-
-  req.body.images = [];
-  await Promise.all(
-    req.files.images.map(async (file, index) => {
-      const filename = `Peoperty-${req.params.id}-${Date.now()}-${index++}.jpeg`;
-      await sharp(file.buffer)
-        .resize(2000, 1333)
-        .toFormat("jpeg")
-        .jpeg({ quality: 90 })
-        .toFile(`public/property/${filename}`);
-      req.body.images.push(filename);
-    })
-  );
+  if (req.files.images) {
+    req.body.images = [];
+    await Promise.all(
+      req.files.images.map(async (file, index) => {
+        const filename = `Peoperty-${req.body.name}-${Date.now()}-${index++}.jpeg`;
+        await sharp(file.buffer)
+          .resize(2000, 1333)
+          .toFormat("jpeg")
+          .jpeg({ quality: 90 })
+          .toFile(`public/property/${filename}`);
+        req.body.images.push(filename);
+      })
+    );
+  }
   next();
 });
 
@@ -57,6 +58,10 @@ exports.nearByMe = AsyncHandler(async (req, res, next) => {
   const [lat, lag] = latlag.split(",");
   const multi = unit === "km" ? 0.001 : 0.000621371;
 
+  const data = await axios.get(
+    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lag}&localityLanguage=en`
+  );
+  const city = data.data.city;
   const distance = await Property.aggregate([
     {
       $geoNear: {
@@ -69,9 +74,13 @@ exports.nearByMe = AsyncHandler(async (req, res, next) => {
       },
     },
     {
+      $match: { city: city },
+    },
+    {
       $project: {
         distance: 1,
         name: 1,
+        city: -1,
       },
     },
   ]);

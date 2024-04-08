@@ -6,8 +6,7 @@ module.exports = (err, req, res, next) => {
 
   // for duplicate unique key
   if (err.code == 11000) {
-    const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
-    err = new CustomeError(`Duplicate value ${value} please use unique value`, 400);
+    err = new CustomeError(`User Aleredy exist try to login!!!`, 400);
   }
 
   //for invalid id

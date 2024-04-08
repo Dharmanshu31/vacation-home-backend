@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
+const axios = require("axios");
 
 const propertySchema = new mongoose.Schema(
   {
@@ -30,6 +31,7 @@ const propertySchema = new mongoose.Schema(
       address: String,
       description: String,
     },
+    city: String,
     pricePerNight: {
       type: Number,
       required: [true, "A property must have a price per night"],
@@ -66,7 +68,7 @@ const propertySchema = new mongoose.Schema(
     },
     images: {
       type: [String],
-      default: [],
+      required: [true, "Property Must have Images!! pls!! upload"],
     },
     createdAt: {
       type: Date,
@@ -103,6 +105,16 @@ propertySchema.virtual("reviews", {
   ref: "Review",
   foreignField: "property",
   localField: "_id",
+});
+
+propertySchema.post("save", async function (data) {
+  if (data.isModified("location")) {
+    const address = await axios.get(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${data.location.coordinates[1]}&longitude=${data.location.coordinates[0]}&localityLanguage=en`
+    );
+    data.city = address.data.city;
+    await data.save({ validateBeforeSave: false });
+  }
 });
 
 const Property = mongoose.model("Property", propertySchema);
